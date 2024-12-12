@@ -15,6 +15,8 @@ date: 2024-01-01
 * TOC
 {:toc}
 
+---  
+
 ## Main Content
 Your survey starts here. You can refer to the [source code](https://github.com/lilianweng/lil-log/tree/master/_posts) of [lil's blogs](https://lilianweng.github.io/lil-log/) for article structure ideas or Markdown syntax. We've provided a [sample post](https://ucladeepvision.github.io/CS188-Projects-2022Winter/2017/06/21/an-overview-of-deep-learning.html) from Lilian Weng and you can find the source code [here](https://raw.githubusercontent.com/UCLAdeepvision/CS188-Projects-2022Winter/main/_posts/2017-06-21-an-overview-of-deep-learning.md)
 
@@ -67,7 +69,8 @@ Imagen is a powerful text-to-image generation model developed by Google Brain wh
 - Classifier-free guidance with dynamic thresholding
 - Noise augmentation and conditioning in cascading diffusion models
 
-INSERT PIC HERE  
+![Imagen Generation Examples](../assets/images/37/imagen_ex.png){: style="width: 680px; max-width: 100%;"}    
+*Fig XX. Examples of Imagen Generation* [x]   
 
 ## Revisiting Diffusion Models
 In Stable Diffusion, text conditioning is done via a separate transformer that encodes text prompts into the latent space of the diffusion model. These encoders are trained jointly with the diffusion backbone on pairs of images and their text captions. Thus, the text encoders are only exposed to a limited set of text data that is constrained to the space of image captioning and descriptors.  
@@ -80,7 +83,8 @@ In addition, using pre-trained LLM allows the generative model to capitalize on 
   
 The Imagen authors also report surprising results ‒ that the size of the language model has a direct correlation with better generative features. Scaling up the language model even has a much larger impact on generative capabilities than scaling the diffusion model itself.  
 
-INSERT IMAGE  
+![Imagen Experiments](../assets/images/37/imagen_llmvsunet.png){: style="width: 500px; max-width: 100%;"}  
+*Fig XX. Imagen Experiments with Varying LLM and UNet size* [x].  
 
 These charts, from the Imagen paper, show the model capabilities for varying sizes of LLM text encoders (on the left) and UNet diffusion models (on the right). Evidently, increasing the size of the text encoder has a much more drastic improvement on evaluation metrics than increasing the size of the diffusion backbone. A bigger text encoder equals a better generative model.   
   
@@ -104,13 +108,12 @@ First, text prompts are passed to a frozen text encoder that results in embeddin
   
 Then, the image is upsampled via two super-resolution models that create the final 1024x1024 image.   
 
-INSERT IMAGE HERE  
+![Imagen Architecture](../assets/images/37/imagen_arch.png){: style="width: 500px; max-width: 100%;"}  
+*Fig XX. Imagen Architecture* [x].    
 
 
 
-## Reference
-Please make sure to cite properly in your work, for example:
-
-[1] Redmon, Joseph, et al. "You only look once: Unified, real-time object detection." *Proceedings of the IEEE conference on computer vision and pattern recognition*. 2016.
+# References  
+[x] Chitwan Saharia, William Chan, Saurabh Saxena, Lala Li, Jay Whang, Emily L. Denton, Kamyar Ghasemipour, Raphael Gontijo Lopes, Burcu Karagol Ayan, Tim Salimans, Jonathan Ho, David J. Fleet, and Mohammad Norouzi. ["Photorealistic text-to-image diffusion models with deep language understanding."](https://arxiv.org/abs/2205.11487) *arXiv preprint arXiv:2205.11487* (2022).
 
 ---
