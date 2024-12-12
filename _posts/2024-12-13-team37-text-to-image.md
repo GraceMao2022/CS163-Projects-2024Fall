@@ -116,7 +116,7 @@ Imagen is a powerful text-to-image generation model developed by Google Brain wh
 - Classifier-free guidance with dynamic thresholding
 - Noise augmentation and conditioning in cascading diffusion models
 
-![Imagen Generation Examples](../assets/images/37/imagen_ex.png){: style="width: 680px; max-width: 100%;"}    
+![Imagen Generation Examples]({{ '/assets/images/37/imagen_ex.png' | relative_url}}){: style="width: 680px; max-width: 100%;"}    
 *Fig XX. Examples of Imagen Generation* [x]   
 
 ### Revisiting Diffusion Models
@@ -130,7 +130,7 @@ In addition, using pre-trained LLM allows the generative model to capitalize on 
   
 The Imagen authors also report surprising results ‒ that the size of the language model has a direct correlation with better generative features. Scaling up the language model even has a much larger impact on generative capabilities than scaling the diffusion model itself.  
 
-![Imagen Experiments](../assets/images/37/imagen_llmvsunet.png){: style="width: 500px; max-width: 100%;"}  
+![Imagen Experiments]({{ '/assets/images/37/imagen_llmvsunet.png' | relative_url}}){: style="width: 500px; max-width: 100%;"}  
 *Fig XX. Imagen Experiments with Varying LLM and UNet size* [x].  
 
 These charts, from the Imagen paper, show the model capabilities for varying sizes of LLM text encoders (on the left) and UNet diffusion models (on the right). Evidently, increasing the size of the text encoder has a much more drastic improvement on evaluation metrics than increasing the size of the diffusion backbone. A bigger text encoder equals a better generative model.   
@@ -155,11 +155,13 @@ First, text prompts are passed to a frozen text encoder that results in embeddin
   
 Then, the image is upsampled via two super-resolution models that create the final 1024x1024 image.   
 
-![Imagen Architecture](../assets/images/37/imagen_arch.png){: style="width: 500px; max-width: 100%;"}  
+![Imagen Architecture]({{ '/assets/images/37/imagen_arch.png' | relative_url }}){: style="width: 500px; max-width: 100%;"}  
 *Fig XX. Imagen Architecture* [x].    
 
 ## Running Stable Diffusion via WebUI
 Our group decided to use AUTOMATIC1111’s stable diffusion web UI to run pre-existing stable diffusion models. 
+
+---
 
 ### Introduction to Stable Diffusion Web UI
 Stable Diffusion Web UI is a web interface for Stable Diffusion, which provides traditional image to image and text to image capabilities. It also provides features like prompt matrices, where you can provide multiple prompts and a matrix of multiple images will be produced based on the combination of those prompts.
