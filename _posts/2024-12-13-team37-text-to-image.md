@@ -154,14 +154,6 @@ Noise augmentation adds a random amount of noise to intermediate images between 
 These techniques, taken together, boost the quality produced by the final Imagen model.  
 
 
-### Stable Diffusion
-
-As introduced above Diffusion Models are a class of likelihood-based models that use excessive amounts of capacity and resources for modeling finer details of data, thus have a high computational overhead. For example, training powerful Diffusion Models could take hundreds of GPU days. The solution that the paper, High-Resolution Image Synthesis with Latent Diffusion Models, presents is the Latent Diffusion Model, which addresses this limitation by using training the autoencoder to provide a lower-dimensional representational space. This autoencoder only needs to be trained once and can be reused for multiple Diffusion Model training iterations. 
-
-The Latent Diffusion Model process begins with an encoder ε that takes in an input image x in the RGB space with a shape of [H,W,3],  and encodes x into a lower dimension representation z. The encoder extracts the most important features in z, which is referred to as the latent space and can be represented as z = ε (x). The latent space is then downsampled by factor f, a hyperparameter, resulting in latent representation z being smaller than input image x. The latent space is reconstructed using a decoder which can be represented as D(z) = x̂, where x̂ is the reconstructed image and an approximation of the original image x. 
-
-The advantage of Latent Diffusion models is that it preserves the 2D spatial relationships and structure, unlike previous work where the input was flattened into most commonly a 1D vector thus losing critical structural information. Thus Latent Diffusion Model learns representation in lower-dimensional space in order to capture meaningful structure and through denoising removes fine-grained details which decreases the overall computational overhead, without affecting the model’s overall performance when generating high-quality images. 
-
 ### Overview of Imagen Architecture  
   
 First, text prompts are passed to a frozen text encoder that results in embeddings. These embeddings are inputs into a text-to-image diffusion model that outputs a 64x64 image.  
@@ -170,6 +162,34 @@ Then, the image is upsampled via two super-resolution models that create the fin
 
 ![Imagen Architecture]({{ '/assets/images/37/imagen_arch.png' | relative_url }}){: style="width: 500px; max-width: 100%;"}  
 *Fig XX. Imagen Architecture* [x]. 
+
+## Stable Diffusion
+
+
+As introduced above Diffusion Models are a class of likelihood-based models that use excessive amounts of capacity and resources for modeling finer details of data, thus have a high computational overhead. For example, training powerful Diffusion Models could take hundreds of GPU days. The solution that the paper, High-Resolution Image Synthesis with Latent Diffusion Models, presents is the Latent Diffusion Model, which addresses this limitation by training the autoencoder to provide a lower-dimensional representational space. The autoencoder only needs to be trained once and can be reused for multiple Diffusion Model training iterations.
+
+
+![StableDiffusionGraph]({{ '/assets/images/37/StableDiffusionGraph.png' | relative_url }})
+{: style="width: 500px; max-width: 100%;"}
+*Figure N. LDM removing finer details during semantic compression then generating the image.”*
+
+
+
+
+The Latent Diffusion Model process begins with an encoder ε that takes in an input image x in the RGB space with a shape of [H,W,3],  and encodes x into a lower dimension representation z. The encoder extracts the most important features in z, which is referred to as the latent space and can be represented as z = ε(x). The latent space is then downsampled by factor f, a hyperparameter, resulting in latent representation z being smaller than input image x. The latent space is reconstructed using a decoder which can be represented as D(z) = x̂, where x̂ is the reconstructed image and an approximation of the original image x.
+
+
+The advantage of Latent Diffusion models is that it preserves the 2D spatial relationships and structure, unlike previous work where the input was flattened into most commonly a 1D vector thus losing critical structural information. Thus Latent Diffusion Models learns representation in lower-dimensional space in order to capture meaningful structure and through denoising removes fine-grained details which decreases the overall computational overhead, without affecting the model’s overall performance when generating high-quality images.
+
+
+#### Loss Objective
+![StableDiffusionEquation]({{ '/assets/images/37/StableDiffusionEquation.png' | relative_url }})
+{: style="width: 800px; max-width: 100%;"}
+*Figure N. Latent Diffusion Model's loss objective.”*
+
+
+The loss function of the Latent Diffusion Model aims to minimize the difference between the actual noise and predicted noise from the latent space, z, in order to train the neural network to learn to predict noise introduced during the forward diffusion process. Additionally, Kullback-Leibler regularization term added to the loss function penalizes deviation from the normal standard distribution in order to reduce variance/overfitting.
+
 
 ## GANs
 Generative Adversarial Networks (GANs) is a deep generative model first introduced in the paper ["Generative Adversarial Nets"](https://arxiv.org/abs/1406.2661), proposed by Ian Goodfellow and his colleagues. The idea behind GANs is to simultaneously train two neural networks–a generator $$G$$ and a discriminator $$D$$–to compete against each other. $$G$$ creates fake data to deceive $$D$$ as real data while $$D$$ attempts to accurately distinguish the generated data from real data. The significance of this adversarial nets framework is that both $$D$$ and $$G$$ can be trained with backpropagation and that Markov chains or inference networks are not required. 
