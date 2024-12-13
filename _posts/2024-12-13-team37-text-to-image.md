@@ -171,7 +171,7 @@ As introduced above Diffusion Models are a class of likelihood-based models that
 
 ![StableDiffusionGraph]({{ '/assets/images/37/StableDiffusionGraph.png' | relative_url }})
 {: style="width: 500px; max-width: 100%;"}
-*Figure N. LDM removing finer details during semantic compression then generating the image.”*
+*Figure N. LDM removing finer details during semantic compression then generating the image.”* [b].
 
 
 
@@ -185,7 +185,7 @@ The advantage of Latent Diffusion models is that it preserves the 2D spatial rel
 #### Loss Objective
 ![StableDiffusionEquation]({{ '/assets/images/37/StableDiffusionEquation.png' | relative_url }})
 {: style="width: 800px; max-width: 100%;"}
-*Figure N. Latent Diffusion Model's loss objective.”*
+*Figure N. Latent Diffusion Model's loss objective.”* [b].
 
 
 The loss function of the Latent Diffusion Model aims to minimize the difference between the actual noise and predicted noise from the latent space, z, in order to train the neural network to learn to predict noise introduced during the forward diffusion process. Additionally, Kullback-Leibler regularization term added to the loss function penalizes deviation from the normal standard distribution in order to reduce variance/overfitting.
@@ -483,7 +483,8 @@ To tackle this key issue, precise subject-driven generative models are used to c
 
 ## References  
 [x] Chitwan Saharia, William Chan, Saurabh Saxena, Lala Li, Jay Whang, Emily L. Denton, Kamyar Ghasemipour, Raphael Gontijo Lopes, Burcu Karagol Ayan, Tim Salimans, Jonathan Ho, David J. Fleet, and Mohammad Norouzi. ["Photorealistic text-to-image diffusion models with deep language understanding."](https://arxiv.org/abs/2205.11487) *arXiv preprint arXiv:2205.11487* (2022).  
-[a] Nataniel Ruiz, Yuanzhen Li, Varun Jampani, Yael Pritch, Michael Rubinstein, and Kfir Aberman. ["DreamBooth: Fine Tuning Text-to-Image Diffusion Models for Subject-Driven Generation"](https://arxiv.org/pdf/2208.12242) *arXiv preprint arXiv:2208.12242* (2023).  
+[a] Nataniel Ruiz, Yuanzhen Li, Varun Jampani, Yael Pritch, Michael Rubinstein, and Kfir Aberman. ["DreamBooth: Fine Tuning Text-to-Image Diffusion Models for Subject-Driven Generation"](https://arxiv.org/pdf/2208.12242) *arXiv preprint arXiv:2208.12242* (2023).
+[b] Robin Rombach, Andreas Blattmann, Dominik Lorenz, Patrick Esser Bjorn Omner. ["High-Resolution Image Synthesis with Latent Diffusion Models"](https://arxiv.org/pdf/2112.10752v2) *arXiv preprint arXiv:2112.10752* (2022). 
 [y] Yasser Benigmim, Subhankar Roy, Slim Essid, Vicky Kalogeiton, and Stephane Lathuiliere. ["One-shot Unsupervised Domain Adaptation with Personalized Diffusion Models"](https://arxiv.org/pdf/2303.18080v2) *arXiv preprint arXiv:2303.18080* (2023).  
 [z] I. J. Goodfellow et al., “Generative Adversarial Networks,” 2014, arXiv. doi: 10.48550/ARXIV.1406.2661.
 [ref]
