@@ -109,7 +109,8 @@ The goal of these stages is to reduce the amount of memory needed to train the m
 
 Here are some results from the initial DALL-E paper. This model architecture has been overtaken by recent models like diffusion models, which even DALL-E 2 and 3 are using. However, it is still interesting to study different text-to-image generation techniques.
 
-## Imagen: LLM + Diffusion Model
+## Imagen: LLM + Diffusion Model  
+  
 Imagen is a powerful text-to-image generation model developed by Google Brain which, at the time of its release, held the State of the Art performance on a variety of metrics, including the COCO FID benchmark. Key features of this innovative model are:  
 - LLM for text encoder
 - Efficient UNet backbone
@@ -119,7 +120,8 @@ Imagen is a powerful text-to-image generation model developed by Google Brain wh
 ![Imagen Generation Examples]({{ '/assets/images/37/imagen_ex.png' | relative_url}}){: style="width: 680px; max-width: 100%;"}    
 *Fig XX. Examples of Imagen Generation* [x]   
 
-### Revisiting Diffusion Models
+### Revisiting Diffusion Models  
+  
 In Stable Diffusion, text conditioning is done via a separate transformer that encodes text prompts into the latent space of the diffusion model. These encoders are trained jointly with the diffusion backbone on pairs of images and their text captions. Thus, the text encoders are only exposed to a limited set of text data that is constrained to the space of image captioning and descriptors.  
   
 Although this method of jointly training a text encoder and diffusion model works well in practice, Imagen finds that using pre-trained large-language models has much better performance. In fact, Imagen uses the largest language model available at the time (T5-XXL) which is a general language model. The advantages of this approach are twofold, there is no need to train a dedicated encoder, and general encoders learn much better semantic information.  
@@ -137,7 +139,8 @@ These charts, from the Imagen paper, show the model capabilities for varying siz
   
 Imagen also adapts the diffusion backbone itself, introducing a new variant they call Efficient UNet. This version of the UNet model has considerably better memory efficiency, inference time, and convergence speed, being 2-3x faster than other UNets. Better sample quality and faster inference is essential for generative performance and training.  
 
-### Further Optimizations
+### Further Optimizations  
+  
 Imagen also introduces several other novel optimizations for the training process on top of revamping the diffusion backbone and text encoder. These optimizations include dynamic thresholding to enable aggressive classifier-free guidance as well as injecting noise augmentation and conditioning to boost upsampling quality.  
   
 Classifier-free guidance is a technique used to improve the quality of text conditional training in diffusion models. Its counterpart, classifier guidance, has the effect of improving sample quality while reducing diversity in conditional diffusion. However, classifier guidance involves pre-trained models that themselves need to be optimized. Classifier-free guidance is an alternative that avoids pre-trained models by jointly training a single diffusion model on conditional and unconditional objectives by randomly dropping the condition during training. The strength of classifier-free guidance is also controlled by a weight parameter.  
@@ -150,7 +153,8 @@ Noise augmentation adds a random amount of noise to intermediate images between 
   
 These techniques, taken together, boost the quality produced by the final Imagen model.  
   
-### Overview of Imagen Architecture
+### Overview of Imagen Architecture  
+  
 First, text prompts are passed to a frozen text encoder that results in embeddings. These embeddings are inputs into a text-to-image diffusion model that outputs a 64x64 image.  
   
 Then, the image is upsampled via two super-resolution models that create the final 1024x1024 image.   
@@ -243,10 +247,174 @@ Changing the prompt to “realistic astronaut cat”, increasing the sampling st
 {: style="width: 800px; max-width: 100%;"}
 *Figure N. Attempt to produce a cute astronaut cat.* 
 
-Finally, in the desire to produce a cute astronaut cat, we changed the prompt to “realistic cute astronaut cat” and set the seed to random, which produced this rather cute cat with an astronaut helmet with cat ears! 
+Finally, in the desire to produce a cute astronaut cat, we changed the prompt to “realistic cute astronaut cat” and set the seed to random, which produced this rather cute cat with an astronaut helmet with cat ears!  
+
+# Subject Driven Fine-tuning with Dreambooth  
+
+Leveraging generative data for downstream tasks typically requires some degree of subject driven fine-tuning. In these cases, the concern is how to guide generative outputs to match the appearance of subject inputs. Dreambooth is a method for such tuning. 
+
+For example, lets say a user wants to generate images of their pet cat in various environments and poses. Passing a text prompt describing their cat leads to outputs that may look unnatural and unrepresentative of the beloved household feline in question. 
+
+![Default Generation of Sock]({{ '/assets/images/37/defaultgeneration.png' | relative_url}}){: style="width: 800px; max-width: 100%;"}  
+*Figure N. Attempt to generate image of my cat, Sock, with out-of-box diffusion model*  
+
+However, the Dreambooth method allows such targeted subject generation. The key is that instead of explicitly describing the subject characteristics, Dreambooth fine-tunes a model to directly attach those characteristics to a specific text keyword. The model learns to associate a given subject with this keyword and when prompted with the same keyword, is able to generate very realistic images of the input subject.  
+
+![Dreambooth]({{ '/assets/images/37/dreamboothex.png' | relative_url}}){: style="width: 800px; max-width: 100%;"} 
+*Figure N. Examples of Dreambooth Subject-Driven Fine Tuning*[a].  
+
+In fact, the keywords themselves are already present in the model, although it is a requirement that these rare tokens do not already have semantic meanings attached to them. A notable example is the phrase “sks”. This phrase, which is already a part of the text encoders vocabulary, has no semantic meaning associated with it. By tuning a model on subject images with the text embedding “a sks [class]”, the model is able to tie the subject information with the keyword. Subsequent generations using the token “sks” will reproduce the subject in the output.  
+
+![Dreambooth Token Examples]({{ '/assets/images/37/dreamboothex2.png' | relative_url}}){: style="width: 800px; max-width: 100%;"} 
+*Figure N. Examples of Dreambooth Generation with Rare Tokens*[a].  
+
+## Implementing Dreambooth to Generate Pictures of my Cat  
+
+To explore the capabilities of subject-driven generation, I used my cat Sock as an example. The code that follows is adapted from [Huggingface’s Dreambooth training script](https://github.com/huggingface/diffusers/blob/main/examples/dreambooth/train_dreambooth.py).  
+  
+Tuning a model to generate pictures of Sock via Dreambooth is deceptively simple. First, a rare token needs to be selected, in this case the ubiquitous “sks”. Then, from only three subject images, all attached with the same prompt, “a sks cat…”, the model will become personalized to the subject.   
+  
+First, a dataset is needed to store the subject images and pair them with the input prompts.  
+
+```
+lass DreamBoothDataset(Dataset):
+  """
+  A dataset to preprocess instances for fine-tuning model. Pre-processes the images and tokenizes prompts.
+  """
+  def __init__(self,
+               instance_data_root,
+               instance_prompt,
+               tokenizer,
+               size=512,
+               center_crop=False):
+    # saving args
+    self.size = size
+    self.center_crop = center_crop
+    self.tokenizer = tokenizer
+
+    # saving root (instance root is path to folder containing image)
+    self.instance_data_root = Path(instance_data_root)
+    # check if root exists
+    if not self.instance_data_root.exists():
+      raise ValueError(f"Instance {self.instance_data_root} root doesn't exist.")
+
+    # initializing list with paths of all images in instance root
+    self.instance_images_path = list(Path(instance_data_root).iterdir())
+    # length
+    self.num_instance_images = len(self.instance_images_path)
+    self._length = self.num_instance_images
+
+    # saving prompt (same for all images in instance)
+    self.instance_prompt = instance_prompt
+
+    # initializing transforms
+    self.image_transforms = transforms.Compose([
+        transforms.Resize(size, interpolation=transforms.InterpolationMode.BILINEAR),
+        transforms.CenterCrop(size) if center_crop else transforms.RandomCrop(size),
+        transforms.ToTensor(),
+        transforms.Normalize([0.5], [0.5])
+    ])
+
+    # other functions omitted, see attached notebook or Hugginface script
+```
+
+Then, load the diffusion models components: tokenizer and text encoder for text prompts, noise scheduler, text encoder, VAE, and diffusion UNet backbone. *Some helper functions and arguments ommitted, please see notebook or Huggingface script*  
+
+```
+# load tokenizer
+tokenizer = AutoTokenizer.from_pretrained(
+    args.pretrained_model_name_or_path,   # args is a structure of training arguements
+    subfolder = "tokenizer",
+    use_fast = False
+)
+# import text encoder class
+text_encoder_cls = import_model_class_from_model_name_or_path(args.pretrained_model_name_or_path)
+
+# load scheduler and models
+noise_scheduler = DDPMScheduler.from_pretrained(args.pretrained_model_name_or_path, subfolder="scheduler")
+text_encoder = text_encoder_cls.from_pretrained(
+    args.pretrained_model_name_or_path, subfolder="text_encoder"
+)
+vae = AutoencoderKL.from_pretrained(args.pretrained_model_name_or_path, subfolder="vae")
+unet = UNet2DConditionModel.from_pretrained(
+    args.pretrained_model_name_or_path, subfolder="unet"
+)
+```
+  
+Make sure the VAE and text encoders are frozen (only training diffusion backbone).  
+
+```
+# will not be training text or image encoders
+vae.requires_grad_(False)
+text_encoder.requires_grad_(False)
+```
+
+Initilize the optimizer, dataset, and learning rate scheduler.  
+
+```
+# create optimizer
+optimizer = optimizer_class(
+    unet.parameters(),
+    lr = args.learning_rate,
+    betas = (args.adam_beta1, args.adam_beta2),
+    weight_decay = args.adam_weight_decay,
+    eps = args.adam_epsilon
+)
+
+# load dataset and dataloader
+train_dataset = DreamBoothDataset(
+    instance_data_root = args.instance_data_dir,
+    instance_prompt = args.instance_prompt,
+    tokenizer = tokenizer,
+    size = args.resolution,
+    center_crop = args.center_crop
+)
+
+train_dataloader = torch.utils.data.DataLoader(
+    train_dataset,
+    batch_size = args.train_batch_size,
+    shuffle = True,
+    collate_fn = lambda examples: collate_fn(examples),
+    num_workers = 2
+)
+
+# setting up lr scheduler
+lr_scheduler = get_scheduler(
+    args.lr_scheduler,
+    optimizer = optimizer,
+    num_warmup_steps = args.lr_warmup_steps * args.gradient_accumulation_steps,
+    num_training_steps = args.max_train_steps * args.gradient_accumulation_steps,
+    num_cycles = args.lr_num_cycles,
+    power = args.lr_power
+)
+```
+
+And train!  
+
+After only 200 iterations on 3 subject image inputs, the model can generate very realistic images.  
+
+![Fine Tuned Outputs]({{ '/assets/images/37/dreamboothout.png' | relative_url}}){: style="width: 800px; max-width: 100%;"} 
+*Figure N. Personalized Dreambooth Outputs. Top row is original image, bottom row is generated outputs*  
+
+## Applications of Subject-Driven Generation: Generative Data Augmentation
+
+The subject of generative data augmentation has already been used in a variety of applications where training data is extremely scarce. In these situations, generated data is used to artificially expand the training dataset and enable model training.   
+  
+A key concern when training models on generated data is ensuring that the artificial data points are relevant, that they accurately represent their real counterparts.  
+  
+To tackle this key issue, precise subject-driven generative models are used to create realistic and meaningful training data.   
+
+![DATUM]({{ '/assets/images/37/datum.png' | relative_url}}){: style="width: 800px; max-width: 100%;"} 
+*Figure N. Examples of GDA from DATUM Paper*[y].  
+
+
+
+
 
 ## References  
-[x] Chitwan Saharia, William Chan, Saurabh Saxena, Lala Li, Jay Whang, Emily L. Denton, Kamyar Ghasemipour, Raphael Gontijo Lopes, Burcu Karagol Ayan, Tim Salimans, Jonathan Ho, David J. Fleet, and Mohammad Norouzi. ["Photorealistic text-to-image diffusion models with deep language understanding."](https://arxiv.org/abs/2205.11487) *arXiv preprint arXiv:2205.11487* (2022).
+[x] Chitwan Saharia, William Chan, Saurabh Saxena, Lala Li, Jay Whang, Emily L. Denton, Kamyar Ghasemipour, Raphael Gontijo Lopes, Burcu Karagol Ayan, Tim Salimans, Jonathan Ho, David J. Fleet, and Mohammad Norouzi. ["Photorealistic text-to-image diffusion models with deep language understanding."](https://arxiv.org/abs/2205.11487) *arXiv preprint arXiv:2205.11487* (2022).  
+[a] Nataniel Ruiz, Yuanzhen Li, Varun Jampani, Yael Pritch, Michael Rubinstein, and Kfir Aberman. ["DreamBooth: Fine Tuning Text-to-Image Diffusion Models for Subject-Driven Generation"](https://arxiv.org/pdf/2208.12242) *arXiv preprint arXiv:2208.12242* (2023).
+[y] Yasser Benigmim, Subhankar Roy, Slim Essid, Vicky Kalogeiton, and Stephane Lathuiliere. ["One-shot Unsupervised Domain Adaptation with Personalized Diffusion Models"](https://arxiv.org/pdf/2303.18080v2) *arXiv preprint arXiv:2303.18080* (2023).  
 [ref]
 [ref1]
 
