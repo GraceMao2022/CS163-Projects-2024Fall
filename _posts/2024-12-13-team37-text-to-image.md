@@ -261,12 +261,12 @@ For example, lets say a user wants to generate images of their pet cat in variou
 However, the Dreambooth method allows such targeted subject generation. The key is that instead of explicitly describing the subject characteristics, Dreambooth fine-tunes a model to directly attach those characteristics to a specific text keyword. The model learns to associate a given subject with this keyword and when prompted with the same keyword, is able to generate very realistic images of the input subject.  
 
 ![Dreambooth]({{ '/assets/images/37/dreamboothex.png' | relative_url}}){: style="width: 800px; max-width: 100%;"} 
-*Figure N. Examples of Dreambooth Subject-Driven Fine Tuning*[a].  
+*Figure N. Examples of Dreambooth Subject-Driven Fine Tuning* [a].  
 
 In fact, the keywords themselves are already present in the model, although it is a requirement that these rare tokens do not already have semantic meanings attached to them. A notable example is the phrase “sks”. This phrase, which is already a part of the text encoders vocabulary, has no semantic meaning associated with it. By tuning a model on subject images with the text embedding “a sks [class]”, the model is able to tie the subject information with the keyword. Subsequent generations using the token “sks” will reproduce the subject in the output.  
 
 ![Dreambooth Token Examples]({{ '/assets/images/37/dreamboothex2.png' | relative_url}}){: style="width: 800px; max-width: 100%;"} 
-*Figure N. Examples of Dreambooth Generation with Rare Tokens*[a].  
+*Figure N. Examples of Dreambooth Generation with Rare Tokens* [a].  
 
 ## Implementing Dreambooth to Generate Pictures of my Cat  
 
@@ -277,7 +277,7 @@ Tuning a model to generate pictures of Sock via Dreambooth is deceptively simple
 First, a dataset is needed to store the subject images and pair them with the input prompts.  
 
 ```
-lass DreamBoothDataset(Dataset):
+Class DreamBoothDataset(Dataset):
   """
   A dataset to preprocess instances for fine-tuning model. Pre-processes the images and tokenizes prompts.
   """
@@ -405,7 +405,7 @@ A key concern when training models on generated data is ensuring that the artifi
 To tackle this key issue, precise subject-driven generative models are used to create realistic and meaningful training data.   
 
 ![DATUM]({{ '/assets/images/37/datum.png' | relative_url}}){: style="width: 800px; max-width: 100%;"} 
-*Figure N. Examples of GDA from DATUM Paper*[y].  
+*Figure N. Examples of GDA from DATUM Paper* [y].  
 
 
 
