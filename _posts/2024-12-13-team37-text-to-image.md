@@ -270,7 +270,7 @@ In fact, the keywords themselves are already present in the model, although it i
 
 ## Implementing Dreambooth to Generate Pictures of my Cat  
 
-To explore the capabilities of subject-driven generation, I used my cat Sock as an example. The code that follows is adapted from [Huggingface’s Dreambooth training script](https://github.com/huggingface/diffusers/blob/main/examples/dreambooth/train_dreambooth.py).  
+To explore the capabilities of subject-driven generation, I used my cat Sock as an example. The code that follows is adapted from [Huggingface’s Dreambooth training script](https://github.com/huggingface/diffusers/blob/main/examples/dreambooth/train_dreambooth.py). You can see my [annotated notebook here](https://colab.research.google.com/drive/1Kl0lBYOzcseQ74HAsjOQ5KY8kGlh03SK?usp=sharing).    
   
 Tuning a model to generate pictures of Sock via Dreambooth is deceptively simple. First, a rare token needs to be selected, in this case the ubiquitous “sks”. Then, from only three subject images, all attached with the same prompt, “a sks cat…”, the model will become personalized to the subject.   
   
