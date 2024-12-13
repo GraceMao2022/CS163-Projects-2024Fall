@@ -413,7 +413,7 @@ To tackle this key issue, precise subject-driven generative models are used to c
 
 ## References  
 [x] Chitwan Saharia, William Chan, Saurabh Saxena, Lala Li, Jay Whang, Emily L. Denton, Kamyar Ghasemipour, Raphael Gontijo Lopes, Burcu Karagol Ayan, Tim Salimans, Jonathan Ho, David J. Fleet, and Mohammad Norouzi. ["Photorealistic text-to-image diffusion models with deep language understanding."](https://arxiv.org/abs/2205.11487) *arXiv preprint arXiv:2205.11487* (2022).  
-[a] Nataniel Ruiz, Yuanzhen Li, Varun Jampani, Yael Pritch, Michael Rubinstein, and Kfir Aberman. ["DreamBooth: Fine Tuning Text-to-Image Diffusion Models for Subject-Driven Generation"](https://arxiv.org/pdf/2208.12242) *arXiv preprint arXiv:2208.12242* (2023).
+[a] Nataniel Ruiz, Yuanzhen Li, Varun Jampani, Yael Pritch, Michael Rubinstein, and Kfir Aberman. ["DreamBooth: Fine Tuning Text-to-Image Diffusion Models for Subject-Driven Generation"](https://arxiv.org/pdf/2208.12242) *arXiv preprint arXiv:2208.12242* (2023).  
 [y] Yasser Benigmim, Subhankar Roy, Slim Essid, Vicky Kalogeiton, and Stephane Lathuiliere. ["One-shot Unsupervised Domain Adaptation with Personalized Diffusion Models"](https://arxiv.org/pdf/2303.18080v2) *arXiv preprint arXiv:2303.18080* (2023).  
 [ref]
 [ref1]
