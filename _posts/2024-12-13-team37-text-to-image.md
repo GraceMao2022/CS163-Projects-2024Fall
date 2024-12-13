@@ -1,13 +1,14 @@
 ---
 layout: post
 comments: true
-title: Post Template
-author: UCLAdeepvision
-date: 2024-01-01
+title: Text-to-Image Generation
+author: Hae Won Cho, Grace Mao, Sakshi Thoutireddy, Roger Wang
+date: 2024-12-13
 ---
 
 
-> This block is a brief introduction of your project. You can put your abstract here or any headers you want the readers to know.
+> Text-to-image generation is a model that generates images from input text. Textual prompt is passed in as input, and the model outputs an image based on that prompt. We will be exploring the architecture and results of four text-to-image models: DALL-E, Imagen, Stable Diffusion, and GANs. We will also be running Stable Diffusion with WebUI and implementing subject-driven fine-tuning on diffusion models with Dreambooth's method.
+
 
 
 <!--more-->
@@ -16,65 +17,19 @@ date: 2024-01-01
 {:toc}
 
 ---  
-
-## Main Content
-Your survey starts here. You can refer to the [source code](https://github.com/lilianweng/lil-log/tree/master/_posts) of [lil's blogs](https://lilianweng.github.io/lil-log/) for article structure ideas or Markdown syntax. We've provided a [sample post](https://ucladeepvision.github.io/CS188-Projects-2022Winter/2017/06/21/an-overview-of-deep-learning.html) from Lilian Weng and you can find the source code [here](https://raw.githubusercontent.com/UCLAdeepvision/CS188-Projects-2022Winter/main/_posts/2017-06-21-an-overview-of-deep-learning.md)
-
-## Basic Syntax
-### Image
-Please create a folder with the name of your team id under /assets/images/, put all your images into the folder and reference the images in your main content.
-
-You can add an image to your survey like this:
-![YOLO]({{ '/assets/images/UCLAdeepvision/object_detection.png' | relative_url }})
-{: style="width: 400px; max-width: 100%;"}
-*Fig 1. YOLO: An object detection method in computer vision* [1].
-
-Please cite the image if it is taken from other people's work.
-
-
-### Table
-Here is an example for creating tables, including alignment syntax.
-
-|             | column 1    |  column 2     |
-| :---        |    :----:   |          ---: |
-| row1        | Text        | Text          |
-| row2        | Text        | Text          |
-
-
-
-### Code Block
-```
-# This is a sample code block
-import torch
-print (torch.__version__)
-```
-
-
-### Formula
-Please use latex to generate formulas, such as:
-
-$$
-\tilde{\mathbf{z}}^{(t)}_i = \frac{\alpha \tilde{\mathbf{z}}^{(t-1)}_i + (1-\alpha) \mathbf{z}_i}{1-\alpha^t}
-$$
-
-or you can write in-text formula $$y = wx + b$$.
-
-### More Markdown Syntax
-You can find more Markdown syntax at [this page](https://www.markdownguide.org/basic-syntax/).
-
 ## DALL-E V1: Variational Autoencoder + Transformer
 The original DALL-E was based on the paper [“Zero-Shot Text-to-Image Generation”](https://arxiv.org/pdf/2102.12092) by Aditya Ramesh et al in 2021. It was developed by OpenAI.
 
 In this paper, the authors propose a 12-billion parameter autoregressive transformer trained on 250 million image-text pairs for text to image generation, claiming that not limiting models to small training sets could possibly produce better results for specific text prompts. It also achieves zero-shot image generation, meaning that the model produces high quality images for labels that it was not specifically trained on.
 
 ### Method
-The general idea for the model is to “train a transformer to autoregressively model the text and image tokens as a single stream of data” [ref]. 
+The general idea for the model is to “train a transformer to autoregressively model the text and image tokens as a single stream of data” [1]. 
 
 DALL-E’s training procedure consists of two stages:
 #### Stage 1: Learning the Visual Codebook
 ![DALLE-1]({{ '/assets/images/37/Dalle-1.png' | relative_url }})
 {: style="width: 800px; max-width: 100%;"}
-*Figure N. DALL-E's dVAE autoencoder and decoder.”* [ref]
+*Figure 1. DALL-E's dVAE autoencoder and decoder.* [2]
 
 - Train a discrete variational autoencoder (dVAE) to downsample the 256x256 RGB input image into a 32x32 grid, with each grid unit possibly having 1 of 8192 possible values from the 8192 codebook vectors trained during this stage.
 - The codebook vectors contain discrete latent indices and its distribution via the input image
@@ -84,7 +39,7 @@ DALL-E’s training procedure consists of two stages:
 #### Stage 2: Learning the Prior
 ![DALLE-2]({{ '/assets/images/37/Dalle-2.png' | relative_url }})
 {: style="width: 800px; max-width: 100%;"}
-*Figure N. DALL-E's transformer.”* [ref]
+*Figure 2. DALL-E's transformer.* [2]
 
 - Concatenate up to 256 BPE-encoded (byte-pair encoded) text tokens with the 1024 image tokens and train an autoregressive transformer to model joint distribution over the tokens
 - The transformer takes in text captions of training images and learns to produce the codebook vectors for one token, and then predicts the distribution for the next token until all 1024 tokens are produced.
@@ -94,7 +49,7 @@ DALL-E’s training procedure consists of two stages:
 The overall procedure maximizes the evidence lower bound (ELB) on the joint likelihood of the model distribution over images x, captions y, and tokens z for the encoded image.
 ![DALLE-3]({{ '/assets/images/37/Dalle-3.png' | relative_url }})
 {: style="width: 800px; max-width: 100%;"}
-*Figure N. DALL-E's loss objective.”* [ref]
+*Figure 3. DALL-E's loss objective.* [1]
 
 - q-phi is the distribution over image tokens given RGB input images
 - p-theta is distribution over RGB images given image tokens
@@ -105,7 +60,7 @@ The goal of these stages is to reduce the amount of memory needed to train the m
 ### Results
 ![DALLE-4]({{ '/assets/images/37/Dalle-4.png' | relative_url }})
 {: style="width: 800px; max-width: 100%;"}
-*Figure N. Text-to-image results from DALL-E v1.”* [ref]
+*Figure 4. Text-to-image results from DALL-E v1.* [1]
 
 Here are some results from the initial DALL-E paper. This model architecture has been overtaken by recent models like diffusion models, which even DALL-E 2 and 3 are using. However, it is still interesting to study different text-to-image generation techniques.
 
@@ -118,7 +73,7 @@ Imagen is a powerful text-to-image generation model developed by Google Brain wh
 - Noise augmentation and conditioning in cascading diffusion models
 
 ![Imagen Generation Examples]({{ '/assets/images/37/imagen_ex.png' | relative_url}}){: style="width: 680px; max-width: 100%;"}    
-*Fig XX. Examples of Imagen Generation* [x]   
+*Fig 5. Examples of Imagen Generation* [3]   
 
 ### Revisiting Diffusion Models  
   
@@ -133,7 +88,7 @@ In addition, using pre-trained LLM allows the generative model to capitalize on 
 The Imagen authors also report surprising results ‒ that the size of the language model has a direct correlation with better generative features. Scaling up the language model even has a much larger impact on generative capabilities than scaling the diffusion model itself.  
 
 ![Imagen Experiments]({{ '/assets/images/37/imagen_llmvsunet.png' | relative_url}}){: style="width: 500px; max-width: 100%;"}  
-*Fig XX. Imagen Experiments with Varying LLM and UNet size* [x].  
+*Fig 6. Imagen Experiments with Varying LLM and UNet size* [3].  
 
 These charts, from the Imagen paper, show the model capabilities for varying sizes of LLM text encoders (on the left) and UNet diffusion models (on the right). Evidently, increasing the size of the text encoder has a much more drastic improvement on evaluation metrics than increasing the size of the diffusion backbone. A bigger text encoder equals a better generative model.   
   
@@ -161,7 +116,7 @@ First, text prompts are passed to a frozen text encoder that results in embeddin
 Then, the image is upsampled via two super-resolution models that create the final 1024x1024 image.   
 
 ![Imagen Architecture]({{ '/assets/images/37/imagen_arch.png' | relative_url }}){: style="width: 500px; max-width: 100%;"}  
-*Fig XX. Imagen Architecture* [x]. 
+*Fig 7. Imagen Architecture* [3]. 
 
 ## Stable Diffusion
 
@@ -171,9 +126,7 @@ As introduced above Diffusion Models are a class of likelihood-based models that
 
 ![StableDiffusionGraph]({{ '/assets/images/37/StableDiffusionGraph.png' | relative_url }})
 {: style="width: 500px; max-width: 100%;"}
-*Figure N. LDM removing finer details during semantic compression then generating the image.”* [b].
-
-
+*Figure 8. LDM removing finer details during semantic compression then generating the image.* [4].
 
 
 The Latent Diffusion Model process begins with an encoder ε that takes in an input image x in the RGB space with a shape of [H,W,3],  and encodes x into a lower dimension representation z. The encoder extracts the most important features in z, which is referred to as the latent space and can be represented as z = ε(x). The latent space is then downsampled by factor f, a hyperparameter, resulting in latent representation z being smaller than input image x. The latent space is reconstructed using a decoder which can be represented as D(z) = x̂, where x̂ is the reconstructed image and an approximation of the original image x.
@@ -185,7 +138,7 @@ The advantage of Latent Diffusion models is that it preserves the 2D spatial rel
 #### Loss Objective
 ![StableDiffusionEquation]({{ '/assets/images/37/StableDiffusionEquation.png' | relative_url }})
 {: style="width: 800px; max-width: 100%;"}
-*Figure N. Latent Diffusion Model's loss objective.”* [b].
+*Figure 9. Latent Diffusion Model's loss objective.* [4].
 
 
 The loss function of the Latent Diffusion Model aims to minimize the difference between the actual noise and predicted noise from the latent space, z, in order to train the neural network to learn to predict noise introduced during the forward diffusion process. Additionally, Kullback-Leibler regularization term added to the loss function penalizes deviation from the normal standard distribution in order to reduce variance/overfitting.
@@ -196,7 +149,7 @@ Generative Adversarial Networks (GANs) is a deep generative model first introduc
 GANs have set the foundation of deep generative models as they output high-quality results based on complicated data distributions. Today, they are applied in a wide variety of fields including video prediction, super-resolution, and text-to-image generation. However, there are challenges such as unstable training and difficulty in tuning hyperparameters.
 
 ### Overview of GANs
-The general setup for adversarial training of GANs is as follows: [z]
+The general setup for adversarial training of GANs is as follows: [5]
 - **Generator ($$G$$):** The generator learns to map random noise to data samples. The goal is to create data that is indistinguishable from the real dataset.
 - **Discriminator ($$D$$):** The discriminator performs as a binary classifier that assumes 0 for fake and 1 for real data.
 - **Loss Functions:** GANs use two loss functions:
@@ -207,7 +160,7 @@ Over the data $$\boldsymbol{x}$$, the generator synthesizes its distribution $$p
 
 ![GANS-V]({{ '/assets/images/37/GANs-V.png' | relative_url }})
 {: style="width: 800px; max-width: 100%;"}
-*Fig N. value function of GANs* [z].
+*Fig 10. value function of GANs* [5].
 
 Note that in reality, the above equation is not good enough for $G$ to learn effectively, especially in the early stage of learning. When $G$ is not optimized yet, $D$ can confidently reject the generator’s output as fake. As a result, $\log(1 - D(G(\boldsymbol{z})))$ approaches 0, and the learning becomes harder. In this step, $G$ is trained to maximize $\log(D(G(\boldsymbol{z})))$ instead.
 
@@ -215,13 +168,13 @@ Below is the visual interpretation of the training progress of $G$ and $D$. The 
 
 ![GANS-1]({{ '/assets/images/37/GANs-1.png' | relative_url }})
 {: style="width: 800px; max-width: 100%;"}
-*Fig N. GANs: Training process of generator and discriminator* [z].
+*Fig 11. GANs: Training process of generator and discriminator* [5].
 
 Here is a visualization of GANs outputs. Yellow boxes are the nearest training examples generated by GANs trained with different datasets: a. MNIST, b. TFD, c. and d. CIFAR-10.
 
 ![GANS-2]({{ '/assets/images/37/GANs-2.png' | relative_url }})
 {: style="width: 800px; max-width: 100%;"}
-*Fig N. GANs: Generated sample images trained on different datasets* [z].
+*Fig 12. GANs: Generated sample images trained on different datasets* [5].
 
 ### Future Improvements
 GANs have a significant advantage as unsupervised learning that doesn’t require labeled data. They are now developed into diverse variations: StyleGAN can produce high-quality image synthesis and Pix2Pix or CycleGAN can be utilized in versatile applications. On the other hand, they still have room for improvement to resolve some problems such as the generator’s mode collapse, unstable training, and imperfect evaluation metrics.
@@ -232,23 +185,23 @@ Stable Diffusion can be an alternative approach to generate images. It has some 
 - It has more diversity in generated samples while GANs can suffer from mode collapse.
 However, GANs are more efficient in terms of computation compared to Stable Diffusion and better at creating highly realistic samples that resemble real life. Both GANs and Stable Diffusion are remarkable generative models, so it is crucial to weigh costs and benefits of both models to choose a more appropriate one for an intended purpose.
 
+---
+
 ## Running Stable Diffusion via WebUI
 Our group decided to use AUTOMATIC1111’s stable diffusion web UI to run pre-existing stable diffusion models. 
-
----
 
 ### Introduction to Stable Diffusion Web UI
 Stable Diffusion Web UI is a web interface for Stable Diffusion, which provides traditional image to image and text to image capabilities. It also provides features like prompt matrices, where you can provide multiple prompts and a matrix of multiple images will be produced based on the combination of those prompts.
 
 ![Prompt Matrix]({{ '/assets/images/37/prompt-matrix.png' | relative_url }})
 {: style="width: 600px; max-width: 100%;"}
-*Figure N. Prompt matrix. Several images all with the same seed are produced based on the combination of the prompts “a busy city street in a modern city|illustration|cinematic lighting,” where | indicates the separation of prompts.* [ref].
+*Figure 13. Prompt matrix. Several images all with the same seed are produced based on the combination of the prompts “a busy city street in a modern city|illustration|cinematic lighting,” where | indicates the separation of prompts.* [6].
 
 In addition, it provides an Attention feature where using () in the text prompt increases the model’s attention on those enclosed words, and using [] decreases it. Adding more () or [] around the same enclosed words increases the magnitude of the effect.
 
 ![WebUI Attention]({{ '/assets/images/37/webui-attention.jpg' | relative_url }})
 {: style="width: 800px; max-width: 100%;"}
-*Figure N. Attention. Web UI provides features to increase and decrease attention on specific words in text prompt.* [ref1].
+*Figure 14. Attention. Web UI provides features to increase and decrease attention on specific words in text prompt.* [6].
 
 ### Guide on Running Web UI
 This is a small guide on how to run stable diffusion models using [Stable Diffusion web UI](https://github.com/AUTOMATIC1111/stable-diffusion-webui) on Mac. It is based on this [tutorial](https://stable-diffusion-art.com/install-mac/).
@@ -289,33 +242,33 @@ Our team decided to explore web UI’s text to image functionalities using the p
 
 ![WebUI-1]({{ '/assets/images/37/webui-1.png' | relative_url }})
 {: style="width: 800px; max-width: 100%;"}
-*Figure N. First look at web UI’s txt2img functionality with the prompt “astronaut cat.”* 
+*Figure 15. First look at web UI’s txt2img functionality with the prompt “astronaut cat.”* 
 
-The first thing to note from Figure __ is that web UI allows us to change the Stable Diffusion checkpoint that we wish to use. By default following the guide above, the checkpoint is [v1-5-pruned-emaonly.safetensors](https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5/blob/main/v1-5-pruned-emaonly.safetensors). See section _____ to learn how to change checkpoints.
+The first thing to note from Figure 15 is that web UI allows us to change the Stable Diffusion checkpoint that we wish to use. By default following the guide above, the checkpoint is [v1-5-pruned-emaonly.safetensors](https://huggingface.co/stable-diffusion-v1-5/stable-diffusion-v1-5/blob/main/v1-5-pruned-emaonly.safetensors). 
 
 Next, the various tabs right below the Stable Diffusion checkpoint field show the various features that web UI provides, including img2img, embedding and hypernetwork training, and a place to allow users to upload their own PNGs. We will be focusing on the txt2img tab.
 
 ![WebUI-2]({{ '/assets/images/37/webui-2.png' | relative_url }})
 {: style="width: 800px; max-width: 100%;"}
-*Figure N. Web UI allows the user to change the sampling method, schedule type, sampling steps, batch size, CGF scale, seed, and much more for image generation, all in a nice interface.* 
+*Figure 16. Web UI allows the user to change the sampling method, schedule type, sampling steps, batch size, CGF scale, seed, and much more for image generation, all in a nice interface.* 
 
 For text to image, web UI provides many easy-to-use interfaces to change parameters for image generation. For example, you can specify the sampling method or the schedule type that you want. You can also specify the number of sampling steps, image size, batch count and size, CFG scale, and seed. You can also upload [custom scripts](https://github.com/AUTOMATIC1111/stable-diffusion-webui/wiki/Custom-Scripts) that can add even more functionality to web UI such as [generating color palettes](https://github.com/1ort/txt2palette) by text prompt or [specifying inpainting mask through text](https://github.com/ThereforeGames/txt2mask) rather than manually drawing it out.
 
 ![WebUI-3]({{ '/assets/images/37/webui-3.png' | relative_url }})
 {: style="width: 800px; max-width: 100%;"}
-*Figure N. Astronaut cat with some modified parameters.* 
+*Figure 17. Astronaut cat with some modified parameters.* 
 
-Playing around with some parameters (which is easy with the slider interface), we tested increasing the sampling steps by a little and increasing the CFG scale to 15, as well as setting the seed to 61. Figure ____ shows the results, which shows the cat in a forward-facing position and more realistic features (although the suit remains animated). 
+Playing around with some parameters (which is easy with the slider interface), we tested increasing the sampling steps by a little and increasing the CFG scale to 15, as well as setting the seed to 61. Figure 17 shows the results, which shows the cat in a forward-facing position and more realistic features (although the suit remains animated). 
 
 ![WebUI-4]({{ '/assets/images/37/webui-4.png' | relative_url }})
 {: style="width: 800px; max-width: 100%;"}
-*Figure N. Making the image more realistic by increasing sampling steps and CFG scale, as well as changing the prompt to “realistic astronaut cat”.* 
+*Figure 18. Making the image more realistic by increasing sampling steps and CFG scale, as well as changing the prompt to “realistic astronaut cat”.* 
 
 Changing the prompt to “realistic astronaut cat”, increasing the sampling steps, and increasing the CFG scale even more produces an even more realistic cat, and this time the suit has some 3-dimensional shading and the background is more detailed.
 
 ![WebUI-5]({{ '/assets/images/37/webui-5.png' | relative_url }})
 {: style="width: 800px; max-width: 100%;"}
-*Figure N. Attempt to produce a cute astronaut cat.* 
+*Figure 19. Attempt to produce a cute astronaut cat.* 
 
 Finally, in the desire to produce a cute astronaut cat, we changed the prompt to “realistic cute astronaut cat” and set the seed to random, which produced this rather cute cat with an astronaut helmet with cat ears!  
 
@@ -326,17 +279,17 @@ Leveraging generative data for downstream tasks typically requires some degree o
 For example, lets say a user wants to generate images of their pet cat in various environments and poses. Passing a text prompt describing their cat leads to outputs that may look unnatural and unrepresentative of the beloved household feline in question. 
 
 ![Default Generation of Sock]({{ '/assets/images/37/defaultgeneration.png' | relative_url}}){: style="width: 800px; max-width: 100%;"}  
-*Figure N. Attempt to generate image of my cat, Sock, with out-of-box diffusion model*  
+*Figure 20. Attempt to generate image of my cat, Sock, with out-of-box diffusion model*  
 
 However, the Dreambooth method allows such targeted subject generation. The key is that instead of explicitly describing the subject characteristics, Dreambooth fine-tunes a model to directly attach those characteristics to a specific text keyword. The model learns to associate a given subject with this keyword and when prompted with the same keyword, is able to generate very realistic images of the input subject.  
 
 ![Dreambooth]({{ '/assets/images/37/dreamboothex.png' | relative_url}}){: style="width: 800px; max-width: 100%;"} 
-*Figure N. Examples of Dreambooth Subject-Driven Fine Tuning* [a].  
+*Figure 21. Examples of Dreambooth Subject-Driven Fine Tuning* [7].  
 
 In fact, the keywords themselves are already present in the model, although it is a requirement that these rare tokens do not already have semantic meanings attached to them. A notable example is the phrase “sks”. This phrase, which is already a part of the text encoders vocabulary, has no semantic meaning associated with it. By tuning a model on subject images with the text embedding “a sks [class]”, the model is able to tie the subject information with the keyword. Subsequent generations using the token “sks” will reproduce the subject in the output.  
 
 ![Dreambooth Token Examples]({{ '/assets/images/37/dreamboothex2.png' | relative_url}}){: style="width: 800px; max-width: 100%;"} 
-*Figure N. Examples of Dreambooth Generation with Rare Tokens* [a].  
+*Figure 22. Examples of Dreambooth Generation with Rare Tokens* [7].  
 
 ## Implementing Dreambooth to Generate Pictures of my Cat  
 
@@ -464,7 +417,7 @@ And train!
 After only 200 iterations on 3 subject image inputs, the model can generate very realistic images.  
 
 ![Fine Tuned Outputs]({{ '/assets/images/37/dreamboothout.png' | relative_url}}){: style="width: 800px; max-width: 100%;"}   
-*Figure N. Personalized Dreambooth Outputs. Top row is original image, bottom row is generated outputs*  
+*Figure 23. Personalized Dreambooth Outputs. Top row is original image, bottom row is generated outputs*  
 
 ## Applications of Subject-Driven Generation: Generative Data Augmentation
 
@@ -475,19 +428,17 @@ A key concern when training models on generated data is ensuring that the artifi
 To tackle this key issue, precise subject-driven generative models are used to create realistic and meaningful training data.   
 
 ![DATUM]({{ '/assets/images/37/datum.png' | relative_url}}){: style="width: 800px; max-width: 100%;"}   
-*Figure N. Examples of GDA from DATUM Paper* [y].  
-
-
-
+*Figure 24. Examples of GDA from DATUM Paper* [8].  
 
 
 ## References  
-[x] Chitwan Saharia, William Chan, Saurabh Saxena, Lala Li, Jay Whang, Emily L. Denton, Kamyar Ghasemipour, Raphael Gontijo Lopes, Burcu Karagol Ayan, Tim Salimans, Jonathan Ho, David J. Fleet, and Mohammad Norouzi. ["Photorealistic text-to-image diffusion models with deep language understanding."](https://arxiv.org/abs/2205.11487) *arXiv preprint arXiv:2205.11487* (2022).  
-[a] Nataniel Ruiz, Yuanzhen Li, Varun Jampani, Yael Pritch, Michael Rubinstein, and Kfir Aberman. ["DreamBooth: Fine Tuning Text-to-Image Diffusion Models for Subject-Driven Generation"](https://arxiv.org/pdf/2208.12242) *arXiv preprint arXiv:2208.12242* (2023).
-[b] Robin Rombach, Andreas Blattmann, Dominik Lorenz, Patrick Esser Bjorn Omner. ["High-Resolution Image Synthesis with Latent Diffusion Models"](https://arxiv.org/pdf/2112.10752v2) *arXiv preprint arXiv:2112.10752* (2022). 
-[y] Yasser Benigmim, Subhankar Roy, Slim Essid, Vicky Kalogeiton, and Stephane Lathuiliere. ["One-shot Unsupervised Domain Adaptation with Personalized Diffusion Models"](https://arxiv.org/pdf/2303.18080v2) *arXiv preprint arXiv:2303.18080* (2023).  
-[z] I. J. Goodfellow et al., “Generative Adversarial Networks,” 2014, arXiv. doi: 10.48550/ARXIV.1406.2661.
-[ref]
-[ref1]
+[1] Ramesh, Aditya, et al. ["Zero-Shot Text-to-Image Generation."](https://arxiv.org/pdf/2102.12092) *Proceedings of the 38th International Conference on Machine Learning*. 2021.\
+[2] Abideen, Zain ul. ["How OpenAI’s DALL-E works?"](https://medium.com/@zaiinn440/how-openais-dall-e-works-da24ac6c12fa) *Medium*. 2023.\
+[3] Saharia, Chitwan, et al. ["Photorealistic text-to-image diffusion models with deep language understanding."](https://arxiv.org/abs/2205.11487) *arXiv preprint arXiv:2205.11487* 2022.\
+[4] Rombach, Robin, et al. ["High-Resolution Image Synthesis with Latent Diffusion Models."](https://arxiv.org/pdf/2112.10752v2) *arXiv preprint arXiv:2112.10752*. 2022.\
+[5] Goodfellow, Ian J., et al., [“Generative Adversarial Networks.”](https://arxiv.org/abs/1406.2661) *arXiv. doi: 10.48550/ARXIV.1406.2661*. 2014.\
+[6] AUTOMATIC1111. ["stable-diffusion-webui-feature-showcase"](https://github.com/AUTOMATIC1111/stable-diffusion-webui-feature-showcase). *Github*.\
+[7] Ruiz, Nataniel, et al. ["DreamBooth: Fine Tuning Text-to-Image Diffusion Models for Subject-Driven Generation."](https://arxiv.org/pdf/2208.12242) *arXiv preprint arXiv:2208.12242*. 2023.\
+[8] Benigmim, Yasser, et al. ["One-shot Unsupervised Domain Adaptation with Personalized Diffusion Models."](https://arxiv.org/pdf/2303.18080v2) *arXiv preprint arXiv:2303.18080*. 2023.
 
 ---
