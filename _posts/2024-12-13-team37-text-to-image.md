@@ -393,7 +393,7 @@ And train!
 
 After only 200 iterations on 3 subject image inputs, the model can generate very realistic images.  
 
-![Fine Tuned Outputs]({{ '/assets/images/37/dreamboothout.png' | relative_url}}){: style="width: 800px; max-width: 100%;"} 
+![Fine Tuned Outputs]({{ '/assets/images/37/dreamboothout.png' | relative_url}}){: style="width: 800px; max-width: 100%;"}   
 *Figure N. Personalized Dreambooth Outputs. Top row is original image, bottom row is generated outputs*  
 
 ## Applications of Subject-Driven Generation: Generative Data Augmentation
