@@ -404,7 +404,7 @@ A key concern when training models on generated data is ensuring that the artifi
   
 To tackle this key issue, precise subject-driven generative models are used to create realistic and meaningful training data.   
 
-![DATUM]({{ '/assets/images/37/datum.png' | relative_url}}){: style="width: 800px; max-width: 100%;"} 
+![DATUM]({{ '/assets/images/37/datum.png' | relative_url}}){: style="width: 800px; max-width: 100%;"}   
 *Figure N. Examples of GDA from DATUM Paper* [y].  
 
 
