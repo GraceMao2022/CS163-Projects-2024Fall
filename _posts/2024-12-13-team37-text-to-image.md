@@ -172,7 +172,7 @@ Then, the image is upsampled via two super-resolution models that create the fin
 *Fig XX. Imagen Architecture* [x]. 
 
 ## GANs
-Generative Adversarial Networks (GANs) is a deep generative model first introduced in the paper [“"Generative Adversarial Nets"”](https://arxiv.org/abs/1406.2661), proposed by Ian Goodfellow and his colleagues. The idea behind GANs is to simultaneously train two neural networks–a generator $$G$$ and a discriminator $$D$$–to compete against each other. $$G$$ creates fake data to deceive $$D$$ as real data while $$D$$ attempts to accurately distinguish the generated data from real data. The significance of this adversarial nets framework is that both $$D$$ and $$G$$ can be trained with backpropagation and that Markov chains or inference networks are not required. 
+Generative Adversarial Networks (GANs) is a deep generative model first introduced in the paper ["Generative Adversarial Nets"](https://arxiv.org/abs/1406.2661), proposed by Ian Goodfellow and his colleagues. The idea behind GANs is to simultaneously train two neural networks–a generator $$G$$ and a discriminator $$D$$–to compete against each other. $$G$$ creates fake data to deceive $$D$$ as real data while $$D$$ attempts to accurately distinguish the generated data from real data. The significance of this adversarial nets framework is that both $$D$$ and $$G$$ can be trained with backpropagation and that Markov chains or inference networks are not required. 
 GANs have set the foundation of deep generative models as they output high-quality results based on complicated data distributions. Today, they are applied in a wide variety of fields including video prediction, super-resolution, and text-to-image generation. However, there are challenges such as unstable training and difficulty in tuning hyperparameters.
 
 ### Overview of GANs
@@ -183,15 +183,15 @@ The general setup for adversarial training of GANs is as follows: [z]
     - The objective of $$D$$’s loss function is to maximize its accuracy in classifying real and fake data.
     - The objective of $$G$$’s loss function is to minimize D’s ability to correctly label generated data.
 
-Over the data $$\boldsymbol{x}$$, the generator synthesizes its distribution $$p_{\boldsymbol{z}}(\boldsymbol{z})$$ and maps it to data space $$G(\boldsymbol{z};\theta_{g})$$ to obtain the distribution $$p_{g}$$ in the end. Here, $$G(\boldsymbol{z};\theta_{g})$$ is a differentiable function that is a representation of a multilayer perceptron. There is another multilayer perceptron $$D(\boldsymbol{x};\theta_{g})$$ that outputs a scalar value probability of if $$\boldsymbol{x}$$ is derived from data rather than $$p_{g}$$. The goal of $$D(\mathsymbol{x})$$ is to maximize the probability of correctly discriminating training examples and samples by minimizing $\log(1 - D(G(\boldsymbol{z})))$. That is, $D$ and $G$ compete against each other with the value function $V(G, D)$. The following is the mathematical representation of the objective function:
+Over the data $$\boldsymbol{x}$$, the generator synthesizes its distribution $$p_{\boldsymbol{z}}(\boldsymbol{z})$$ and maps it to data space $$G(\boldsymbol{z};\theta_{g})$$ to obtain the distribution $$p_{g}$$ in the end. Here, $$G(\boldsymbol{z};\theta_{g})$$ is a differentiable function that is a representation of a multilayer perceptron. There is another multilayer perceptron $$D(\boldsymbol{x};\theta_{d})$$ that outputs a scalar value probability of if $$\boldsymbol{x}$$ is derived from data rather than $$p_{g}$$. The goal of $$D(\boldsymbol{x})$$ is to maximize the probability of correctly discriminating training examples and samples by minimizing $\log(1 - D(G(\boldsymbol{z})))$. That is, $D$ and $G$ compete against each other with the value function $V(G, D)$. The following is the mathematical representation of the objective function:
 
-$$
-\min_{G} \max_{D} V(D, G) = \mathbb{E}_{x \sim p_{\text{data}}(x)}[\log D(x)] + \mathbb{E}_{z \sim p_z(z)}[\log(1 - D(G(z)))]
-$$
+![GANS-V]({{ '/assets/images/37/GANs-V.png' | relative_url }})
+{: style="width: 800px; max-width: 100%;"}
+*Fig N. value function of GANs* [z].
 
 Note that in reality, the above equation is not good enough for $G$ to learn effectively, especially in the early stage of learning. When $G$ is not optimized yet, $D$ can confidently reject the generator’s output as fake. As a result, $\log(1 - D(G(\boldsymbol{z})))$ approaches 0, and the learning becomes harder. In this step, $G$ is trained to maximize $\log(D(G(\boldsymbol{z})))$ instead.
 
-Below is the visual interpretation of the training progress of $G$ and $D$. The black dotted line represents $p_{x}$ or the true data distribution. The green solid line represents $p_{g}$, the generated data distribution, which is the distribution of samples created by $G$. The blue dashed line is $D$. In the final step of the training, Both $G$ and $D$ reach the equilibrium where $p_g = p_{data}$ and $D(\boldsymbol{x}) = \frac{1}{2}$.
+Below is the visual interpretation of the training progress of $G$ and $D$. The black dotted line represents $p_{x}$ or the true data distribution. The green solid line represents $p_{g}$, the generated data distribution, which is the distribution of samples created by $G$. The blue dashed line is $D$. In the final step of the training, Both $G$ and $D$ reach the equilibrium where $p_g = p_{\text{data}}$ and $D(\boldsymbol{x}) = \frac{1}{2}$.
 
 ![GANS-1]({{ '/assets/images/37/GANs-1.png' | relative_url }})
 {: style="width: 800px; max-width: 100%;"}
