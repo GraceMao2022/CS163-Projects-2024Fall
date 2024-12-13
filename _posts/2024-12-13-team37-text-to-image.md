@@ -152,7 +152,16 @@ In addition, the Imagen architecture also implements cascading diffusion models.
 Noise augmentation adds a random amount of noise to intermediate images between upsampling. Noise conditioning in the upsampling models means that the amount of noise added in the form of augmentations is provided as a further condition to the upsampling model.  
   
 These techniques, taken together, boost the quality produced by the final Imagen model.  
-  
+
+
+### Stable Diffusion
+
+As introduced above Diffusion Models are a class of likelihood-based models that use excessive amounts of capacity and resources for modeling finer details of data, thus have a high computational overhead. For example, training powerful Diffusion Models could take hundreds of GPU days. The solution that the paper, High-Resolution Image Synthesis with Latent Diffusion Models, presents is the Latent Diffusion Model, which addresses this limitation by using training the autoencoder to provide a lower-dimensional representational space. This autoencoder only needs to be trained once and can be reused for multiple Diffusion Model training iterations. 
+
+The Latent Diffusion Model process begins with an encoder ε that takes in an input image x in the RGB space with a shape of [H,W,3],  and encodes x into a lower dimension representation z. The encoder extracts the most important features in z, which is referred to as the latent space and can be represented as z = ε (x). The latent space is then downsampled by factor f, a hyperparameter, resulting in latent representation z being smaller than input image x. The latent space is reconstructed using a decoder which can be represented as D(z) = x̂, where x̂ is the reconstructed image and an approximation of the original image x. 
+
+The advantage of Latent Diffusion models is that it preserves the 2D spatial relationships and structure, unlike previous work where the input was flattened into most commonly a 1D vector thus losing critical structural information. Thus Latent Diffusion Model learns representation in lower-dimensional space in order to capture meaningful structure and through denoising removes fine-grained details which decreases the overall computational overhead, without affecting the model’s overall performance when generating high-quality images. 
+
 ### Overview of Imagen Architecture  
   
 First, text prompts are passed to a frozen text encoder that results in embeddings. These embeddings are inputs into a text-to-image diffusion model that outputs a 64x64 image.  
